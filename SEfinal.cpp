@@ -35,7 +35,7 @@ class Questions
         { 
             score=0;  
              
-            for (int i=0;i<10;i++) 
+            for (int i=0;i<5;i++) 
                 ques[i]=-1; 
             count=0;  
              
@@ -44,7 +44,7 @@ class Questions
         int generateQuesNo() 
         { 
             int i;  
-            while(count<10) 
+            while(count<5) 
             { 
 	            int flag=0; 
 	            quesNo=rand()%50; 	   /*generating a random question number*/ 
@@ -86,7 +86,18 @@ class Questions
             if(Q[quesNo].op==toupper(ch)) 
                 return 1;      
             else return 0;  
-        }        
+        }
+		
+		void showAns()
+		{
+			int counter = 0,que;
+			while(counter<5)
+			{
+				que = ques[counter];
+				cout << Q[que].op << endl;
+				counter++;
+			}
+		}        
 };
 
 class System
@@ -186,10 +197,10 @@ class System
 				}
 			}
 		}
-		
+		Questions q;
 		int startQuiz(player p)
 		{
-			Questions q;
+			
 			int x =q.generateQuesNo();  /*generateQuesNo returns score*/
 			/*Updating scores*/			
 			for(int i = 0; i<noOfAcc;i++)
@@ -199,6 +210,11 @@ class System
 			    	arr[i].	score = x;
 				}
 			return x;	
+		}
+		
+		void answers()
+		{
+			q.showAns();	
 		}
 }S;
 
@@ -276,44 +292,9 @@ class Player
 			S.update(P);
 		}	
 		
-		void changePassword()
-		{	/*Provision to change old password*/
-			int i;
-			char ch;
-			char pwd[20],newp[20],rn[20];
-			cout << "\n Enter Old Password ";
-			cin >> pwd;
-			cout << "\n Enter new password ";
-			i = 0;
-			do
-			{
-				ch = getch();
-				pwd[i++] = ch;
-				cout << "*";
-
-			} while (ch != 13);
-			pwd[i-1] = '\0';
-			cout << "\n Re-enter new password ";
-			i = 0;
-			do
-			{
-				ch = getch();
-				pwd[i++] = ch;
-				cout << "*";
-
-			} while (ch != 13);
-			pwd[i-1] = '\0';
-			if (!strcmp(newp, rn))
-			{
-				strcpy(P.passWord,newp);
-				S.update(P);
-			}
-			else
-			{
-				cout << "\n Invalid inputs ";
-				changePassword();
-			}
-
+		void check_answer()
+		{
+			S.answers();
 		}
 		
 		char * retname()
@@ -360,6 +341,41 @@ class Admin
 				arr[i].rank=0;
 			}
 		}
+		
+		void add_question()
+		{
+			char question[10000];
+			char answer[10];
+    		ofstream que_file, ans_file;  // Create Object of Ofstream
+    		
+    		ifstream que_no;
+    		que_no.open("que_number.txt");
+    		int count;
+    		que_no >> count;
+    		count++;
+    		que_no.close();
+    		
+    		ofstream que_no1;
+    		que_no1.open("que_number.txt");
+    		que_no1 << count;
+    		que_no1.close();
+    		
+    		
+    		
+    		que_file.open ("questions.txt", ios::app); // Append mode
+    		cout << "question number is " << count << endl;
+    		cout << "Enter the question with number,options followed by $" <<endl;
+    		cin >> question;
+			que_file << question; // Writing data to file
+    		que_file.close();
+    		
+    		ans_file.open ("answers.txt", ios::app); // Append mode
+			cout << "Enter the corect answer" << endl;
+    		cin >> answer;
+    		ans_file << answer;
+    		ans_file.close();
+    			
+		}
 
 };
 
@@ -381,6 +397,7 @@ int main()
 	for(int i = 0; !f.eof();i++)
 	  {
 	  	f.read((char*)&arr[i],sizeof(player)); /*Reading players file into arr of structures of type Player*/
+	  	//cout << arr[i].userName << endl;
 	  	
 	  }
 	  
@@ -413,33 +430,61 @@ int main()
 		menu(p1);
 		Admin A;
 		while(1)
-		{
-			/*Menu for user of software app*/
-			cout<<"\n1. Take quiz"<<endl<<"2. Change password"<<endl<<"3. Get rank"<<endl<<"4. Logout"<<endl<<"5. Reset Leaderboard";
-			cout<<endl<<"Enter your option:"; 
-			cin>>ch; 
-			
-			switch(ch)
+		{	 
+			if(strcmp(p1.retuser(),"akhil")==0)
 			{
-				case 1:p1.take();
-						break; 
-				case 2:p1.changePassword();
-						break; 
-				case 3:p1.getRank();
-						break;
-				case 4:menu(p1);
-						break;
-				case 5:if(strcmp(p1.retuser(),"admin")==0)
-						{
-							A.resetLeaderBoard();
-							cout<<endl<<"Leaderboard has been reset"<<endl;
-						}
-						else
-						{
-							cout<<endl<<"You don't have rights for that! "<<endl;
-						}
-			 } 
 			
+			/*Menu for user of software app*/
+				cout<<"\n1. Logout"<<endl<<"2. Reset Leaderboard" <<endl<<"3. Add Question"<<endl;
+				cout<<endl<<"Enter your option:"; 
+				cin>>ch; 
+				
+				switch(ch)
+				{
+					case 1:menu(p1);
+							break;
+					case 2:if(strcmp(p1.retuser(),"akhil")==0)
+							{
+								A.resetLeaderBoard();
+								cout<<endl<<"Leaderboard has been reset"<<endl;
+							}
+							else
+							{
+								cout<<endl<<"You don't have rights for that! "<<endl;
+							}
+							break;
+					case 3:if(strcmp(p1.retuser(),"akhil")==0)
+							{
+								A.add_question();
+								cout<<endl<<"Question has been added"<<endl;
+							}
+							else
+							{
+								cout<<endl<<"You don't have rights for that! "<<endl;
+							}
+							break;
+				 } 
+			}
+			else
+			{
+			
+			/*Menu for user of software app*/
+				cout<<"\n1. Take quiz"<<endl<<"2. Get rank"<<endl<<"3. Logout"<<endl<<"4. Show Answers"<<endl;
+				cout<<endl<<"Enter your option:"; 
+				cin>>ch; 
+				
+				switch(ch)
+				{
+					case 1:p1.take();
+							break;  
+					case 2:p1.getRank();
+							break;
+					case 3:menu(p1);
+							break;
+					case 4:p1.check_answer();
+							break;
+				 } 
+			}
 			
 		}
 			
@@ -465,14 +510,15 @@ void menu(Player &p1)
 			}
 			else if(ch==2)
 			{
-				p1.newAcc(); 
-			}
-			else if(ch==3)
-			{
+				p1.newAcc();
 				ofstream fout;
 				fout.open("Final.dat",ios::app);
 				fout.write((char*)&p1,sizeof(p1));
 				fout.close();
+			}
+			else if(ch==3)
+			{
+				
 				exit(0);
 			}
 			else
